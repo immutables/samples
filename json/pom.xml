@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.immutables.samples</groupId>
+    <artifactId>samples</artifactId>
+    <version>1-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>json</artifactId>
+
+  <name>${project.groupId}.${project.artifactId}</name>
+  <description>
+    Small examples and microbenchmark for JSON using Immutables and alternative ways of doint immutable objects and marshaling
+  </description>
+
+  <dependencies>
+    <dependency>
+      <!-- Quickstart is a kitchen sink of all required dependencies.
+      For minimum JSON runtime use [org.immutables:json-runtime] artifact -->
+      <groupId>org.immutables</groupId>
+      <artifactId>quickstart</artifactId>
+      <version>1.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <!-- annotation API. Mostly for javadocs in IDE -->
+      <groupId>org.immutables</groupId>
+      <artifactId>value</artifactId>
+      <version>1.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <!-- Compile only annotation processor with everything packeged in -->
+      <groupId>org.immutables</groupId>
+      <artifactId>value-standalone</artifactId>
+      <version>1.2-SNAPSHOT</version>
+      <scope>provided</scope>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.datatype</groupId>
+      <artifactId>jackson-datatype-guava</artifactId>
+      <version>2.4.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.dataformat</groupId>
+      <artifactId>jackson-dataformat-smile</artifactId>
+      <version>2.4.4</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.auto.value</groupId>
+      <artifactId>auto-value</artifactId>
+      <version>1.0-rc4</version>
+    </dependency>
+
+    <!-- microbenchmark framework -->
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-core</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-generator-annprocess</artifactId>
+      <version>1.2</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
+
+</project>
