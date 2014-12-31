@@ -9,8 +9,8 @@ public class JsonRunner {
   public static void main(String... args) throws RunnerException {
     new Runner(new OptionsBuilder()
         .include(".*" + JsonBenchmarks.class.getSimpleName() + ".*")
-        .warmupIterations(5)
-        .measurementIterations(5)
+        .warmupIterations(10)
+        .measurementIterations(10)
         .forks(1)
         .build()).run();
   }

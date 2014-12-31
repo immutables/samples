@@ -1,5 +1,6 @@
 package org.immutables.samples.json.immutables;
 
+import org.immutables.value.ext.Gson;
 import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Set;
@@ -9,12 +10,14 @@ import org.immutables.value.Value;
 
 @Value.Immutable
 @Json.Marshaled
+@Gson.Streamed
 public interface ImDocument {
 
   List<Item> items();
 
   @Value.Immutable
   @Json.Marshaled
+  @Gson.Streamed
   public interface Item {
     int id();
 
@@ -47,6 +50,7 @@ public interface ImDocument {
 
   @Value.Immutable
   @Json.Marshaled
+  @Gson.Streamed
   public static abstract class Evaluation {
 
     public abstract String comment();
