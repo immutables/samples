@@ -1,25 +1,28 @@
 package org.immutables.samples.json;
 
-import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
-import com.google.gson.GsonBuilder;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.io.SegmentedStringWriter;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import org.immutables.common.marshal.Marshaler;
 import org.immutables.common.marshal.Marshaling;
+import org.immutables.marshal.gson.jack.JsonGeneratorWriter;
+import org.immutables.marshal.gson.jack.JsonParserReader;
 import org.immutables.samples.json.autojackson.AutoDocument;
 import org.immutables.samples.json.immutables.ImDocument;
 import org.immutables.samples.json.immutables.ImDocumentStreamer;
+import org.immutables.samples.json.io.Io;
+import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
 import org.immutables.samples.json.pojo.PojoDocument;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -42,19 +45,20 @@ public class JsonBenchmarks {
   public void setup() throws IOException {
     json = Resources.toString(JsonBenchmarks.class.getResource("sample.json"), StandardCharsets.UTF_8);
     objectMapper.registerModule(new GuavaModule());
+    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     gson = new GsonBuilder()
         .registerTypeAdapterFactory(new OptionalTypeAdapterFactory())
         .create();
   }
 
   @Benchmark
-  public String autojackson() throws IOException {
+  public String autoJackson() throws IOException {
     AutoDocument document = objectMapper.readValue(json, AutoDocument.class);
     return objectMapper.writeValueAsString(document);
   }
 
   @Benchmark
-  public String pojojackson() throws IOException {
+  public String pojoJackson() throws IOException {
     PojoDocument document = objectMapper.readValue(json, PojoDocument.class);
     return objectMapper.writeValueAsString(document);
   }
@@ -67,17 +71,50 @@ public class JsonBenchmarks {
 
   @SuppressWarnings("resource")
   @Benchmark
-  public String immutablesGson() throws IOException {
-    JsonReader reader = new JsonReader(new StringReader(json));
+  public String pojoGsonJackson() throws IOException {
+    JsonParser parser = objectMapper.getFactory().createParser(json);
+    JsonReader reader = new JsonParserReader(parser);
+
+    Object pojo = gson.fromJson(reader, PojoDocument.class);
+
+    SegmentedStringWriter sw = new SegmentedStringWriter(objectMapper.getFactory()._getBufferRecycler());
+    JsonGenerator generator = objectMapper.getFactory().createGenerator(sw);
+    JsonWriter writer = new JsonGeneratorWriter(generator);
+    gson.toJson(pojo, PojoDocument.class, writer);
+    writer.close();
+    return sw.toString();
+  }
+
+  @SuppressWarnings("resource")
+  @Benchmark
+  public String immutablesGsonJackson() throws IOException {
+    JsonParser parser = objectMapper.getFactory().createParser(json);
+    JsonReader reader = new JsonParserReader(parser);
 
     ImDocumentStreamer streamer = ImDocumentStreamer.instance();
     ImDocument document = streamer.unmarshalInstance(reader);
 
-    StringWriter stringWriter = new StringWriter();
-    JsonWriter writer = new JsonWriter(stringWriter);
+    SegmentedStringWriter sw = new SegmentedStringWriter(objectMapper.getFactory()._getBufferRecycler());
+    JsonGenerator generator = objectMapper.getFactory().createGenerator(sw);
+    JsonWriter writer = new JsonGeneratorWriter(generator);
     streamer.marshalInstance(writer, document);
     writer.close();
-    return stringWriter.toString();
+    return sw.toString();
+  }
+
+  @SuppressWarnings("resource")
+  @Benchmark
+  public String immutablesGson() throws IOException {
+    JsonReader reader = new JsonReader(Io.readerFor(json));
+
+    ImDocumentStreamer streamer = ImDocumentStreamer.instance();
+    ImDocument document = streamer.unmarshalInstance(reader);
+
+    SegmentedStringWriter sw = new SegmentedStringWriter(objectMapper.getFactory()._getBufferRecycler());
+    JsonWriter writer = new JsonWriter(sw);
+    streamer.marshalInstance(writer, document);
+    writer.close();
+    return sw.toString();
   }
 
   // Marshaling.toJson/fromJson is not used due to pretty printing enabled by default
@@ -89,11 +126,12 @@ public class JsonBenchmarks {
     JsonParser parser = objectMapper.getFactory().createParser(json);
     ImDocument document = marshaler.unmarshalInstance(parser);
 
-    StringWriter stringWriter = new StringWriter();
-    JsonGenerator generator = objectMapper.getFactory().createGenerator(stringWriter);
+    SegmentedStringWriter sw = new SegmentedStringWriter(objectMapper.getFactory()._getBufferRecycler());
+    JsonGenerator generator = objectMapper.getFactory().createGenerator(sw);
     marshaler.marshalInstance(generator, document);
     generator.close();
 
-    return stringWriter.toString();
+    return sw.getAndClear();
+
   }
 }

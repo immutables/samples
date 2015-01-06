@@ -26,7 +26,7 @@ public class JsonFile {
   public static void main(String... args) throws IOException {
     ImmutableImDocument.Builder builder = ImmutableImDocument.builder();
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 40; i++) {
       builder.addItems(createItem(i, true));
     }
 
@@ -43,18 +43,18 @@ public class JsonFile {
         .name(textFor(iteration % 15, 10))
         .description(textFor(iteration, 40))
         .foo(iteration * 31 * 17)
-        .bar(iteration % 3 == 0)
-        .tid(iteration + 1000)
+        .bar(iteration % 2 == 0)
+        .tid(iteration + 528)
         .gname(textFor(iteration % 15, 10))
         .bdescription(textFor(iteration, 40))
-        .hfoo(iteration * 31 * 17)
+        .hfoo(iteration * 13)
         .ybar(iteration % 3 == 0);
 
-    for (int i = 1; i < (2 + iteration % 15); i++) {
+    for (int i = 1; i < (2 + iteration % 10); i++) {
       builder.addEvaluation(createEvaluation(i, iteration));
     }
 
-    for (int i = 1; i < (2 + iteration % 15); i++) {
+    for (int i = 1; i < (2 + iteration % 5); i++) {
       builder.addNevaluation(createEvaluation(i, iteration));
     }
 
@@ -71,7 +71,7 @@ public class JsonFile {
     Stars[] stars = Stars.values();
     return ImmutableEvaluation.builder()
         // .stars((i * j) % stars.length)
-        .stars(stars[(i * j) % stars.length])
+        // .stars(stars[(i * j) % stars.length])
         .comment(textFor(i * j, 30))
         .build();
   }
