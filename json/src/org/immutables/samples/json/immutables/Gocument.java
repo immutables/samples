@@ -1,24 +1,20 @@
 package org.immutables.samples.json.immutables;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
+import org.immutables.gson.Gson;
 import org.immutables.value.Value;
-import org.immutables.value.ext.Json;
 
 @Value.Immutable
-@JsonSerialize(as = ImmutableImDocument.class)
-@JsonDeserialize(as = ImmutableImDocument.class)
-@Json.Marshaled
-public interface ImDocument {
+@Value.Nested
+@Gson.TypeAdapted
+public interface Gocument {
 
   List<Item> items();
 
   @Value.Immutable
-  @Json.Marshaled
   public interface Item {
     int id();
 
@@ -50,7 +46,6 @@ public interface ImDocument {
   }
 
   @Value.Immutable
-  @Json.Marshaled
   public static abstract class Evaluation {
 
     public abstract String comment();
