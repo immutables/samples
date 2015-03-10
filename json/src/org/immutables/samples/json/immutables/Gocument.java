@@ -8,8 +8,8 @@ import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 @Value.Immutable
-@Value.Nested
-@Gson.TypeAdapted
+@Value.Enclosing
+@Gson.TypeAdapters
 public interface Gocument {
 
   List<Item> items();

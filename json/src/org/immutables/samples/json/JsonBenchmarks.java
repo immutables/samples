@@ -1,10 +1,5 @@
 package org.immutables.samples.json;
 
-import com.google.gson.TypeAdapter;
-import org.immutables.samples.json.immutables.Gocument;
-import org.immutables.samples.json.immutables.GocumentTypeAdapters;
-import org.immutables.gson.stream.JsonGeneratorWriter;
-import org.immutables.gson.stream.JsonParserReader;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -14,6 +9,7 @@ import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.google.common.io.Resources;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
@@ -21,7 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import org.immutables.common.marshal.Marshaler;
 import org.immutables.common.marshal.Marshaling;
+import org.immutables.gson.stream.JsonGeneratorWriter;
+import org.immutables.gson.stream.JsonParserReader;
 import org.immutables.samples.json.autojackson.AutoDocument;
+import org.immutables.samples.json.immutables.Gocument;
+import org.immutables.samples.json.immutables.GsonAdaptersGocument;
 import org.immutables.samples.json.immutables.ImDocument;
 import org.immutables.samples.json.io.Io;
 import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
@@ -51,7 +51,7 @@ public class JsonBenchmarks {
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     gson = new GsonBuilder()
         .registerTypeAdapterFactory(new OptionalTypeAdapterFactory())
-        .registerTypeAdapterFactory(new GocumentTypeAdapters())
+        .registerTypeAdapterFactory(new GsonAdaptersGocument())
         .create();
 
     gocumentAdapter = gson.getAdapter(Gocument.class);
@@ -125,7 +125,7 @@ public class JsonBenchmarks {
 
   // Marshaling.toJson/fromJson is not used due to pretty printing enabled by default
   @SuppressWarnings("resource")
-  @Benchmark
+  // @Benchmark
   public String immutables() throws IOException {
     Marshaler<ImDocument> marshaler = Marshaling.marshalerFor(ImDocument.class);
 

@@ -7,18 +7,17 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.immutables.value.Value;
-import org.immutables.value.ext.Json;
 
 @Value.Immutable
 @JsonSerialize(as = ImmutableImDocument.class)
 @JsonDeserialize(as = ImmutableImDocument.class)
-@Json.Marshaled
+//@Json.Marshaled
 public interface ImDocument {
 
   List<Item> items();
 
   @Value.Immutable
-  @Json.Marshaled
+//  @Json.Marshaled
   public interface Item {
     int id();
 
@@ -50,7 +49,7 @@ public interface ImDocument {
   }
 
   @Value.Immutable
-  @Json.Marshaled
+//  @Json.Marshaled
   public static abstract class Evaluation {
 
     public abstract String comment();
