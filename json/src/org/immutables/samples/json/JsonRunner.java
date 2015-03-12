@@ -14,14 +14,4 @@ public class JsonRunner {
         .forks(1)
         .build()).run();
   }
-
-  public static void main2(String... args) throws RunnerException {
-    new Runner(new OptionsBuilder()
-        .include(".*" + NarrowJsonBenchmarks.class.getSimpleName() + ".*")
-        .warmupIterations(30)
-        .measurementIterations(30)
-        .forks(1)
-        .build()).run();
-  }
-
 }

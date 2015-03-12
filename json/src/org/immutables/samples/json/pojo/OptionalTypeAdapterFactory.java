@@ -22,20 +22,17 @@ public class OptionalTypeAdapterFactory implements TypeAdapterFactory {
     return (TypeAdapter<T>) new OptionalTypeAdapter(gson, type);
   }
 
-  @SuppressWarnings("unchecked")
-  private static class OptionalTypeAdapter extends TypeAdapter<Optional> {
+  private static class OptionalTypeAdapter extends TypeAdapter<Optional<?>> {
     private final Gson currentGson;
-    private final TypeToken tt;
     private final Type valueType;
 
-    private OptionalTypeAdapter(Gson currentGson, TypeToken tt) {
+    private OptionalTypeAdapter(Gson currentGson, TypeToken<?> token) {
       this.currentGson = currentGson;
-      this.tt = tt;
-      this.valueType = ((ParameterizedType) tt.getType()).getActualTypeArguments()[0];
+      this.valueType = ((ParameterizedType) token.getType()).getActualTypeArguments()[0];
     }
 
     @Override
-    public void write(JsonWriter out, Optional value) throws IOException {
+    public void write(JsonWriter out, Optional<?> value) throws IOException {
       if (value.isPresent()) {
         currentGson.toJson(value.get(), valueType, out);
       } else {
@@ -44,12 +41,11 @@ public class OptionalTypeAdapterFactory implements TypeAdapterFactory {
     }
 
     @Override
-    public Optional read(JsonReader in) throws IOException {
+    public Optional<?> read(JsonReader in) throws IOException {
       if (JsonToken.NULL == in.peek()) {
         return Optional.absent();
       }
       return Optional.of(currentGson.fromJson(in, valueType));
     }
-
   }
 }

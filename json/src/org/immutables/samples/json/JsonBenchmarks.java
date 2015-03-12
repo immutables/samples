@@ -15,14 +15,11 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
-import org.immutables.common.marshal.Marshaler;
-import org.immutables.common.marshal.Marshaling;
 import org.immutables.gson.stream.JsonGeneratorWriter;
 import org.immutables.gson.stream.JsonParserReader;
 import org.immutables.samples.json.autojackson.AutoDocument;
 import org.immutables.samples.json.immutables.Gocument;
 import org.immutables.samples.json.immutables.GsonAdaptersGocument;
-import org.immutables.samples.json.immutables.ImDocument;
 import org.immutables.samples.json.io.Io;
 import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
 import org.immutables.samples.json.pojo.PojoDocument;
@@ -121,23 +118,5 @@ public class JsonBenchmarks {
     gocumentAdapter.write(writer, gocument);
     writer.close();
     return sw.toString();
-  }
-
-  // Marshaling.toJson/fromJson is not used due to pretty printing enabled by default
-  @SuppressWarnings("resource")
-  // @Benchmark
-  public String immutables() throws IOException {
-    Marshaler<ImDocument> marshaler = Marshaling.marshalerFor(ImDocument.class);
-
-    JsonParser parser = objectMapper.getFactory().createParser(json);
-    ImDocument document = marshaler.unmarshalInstance(parser);
-
-    SegmentedStringWriter sw = new SegmentedStringWriter(objectMapper.getFactory()._getBufferRecycler());
-    JsonGenerator generator = objectMapper.getFactory().createGenerator(sw);
-    marshaler.marshalInstance(generator, document);
-    generator.close();
-
-    return sw.getAndClear();
-
   }
 }
