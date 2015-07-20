@@ -1,9 +1,5 @@
 package org.immutables.samples.json;
 
-import com.squareup.moshi.JsonAdapter;
-import org.immutables.samples.json.immutables.JsonAdaptersGocument;
-import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
-import com.squareup.moshi.Moshi;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -16,6 +12,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
@@ -24,8 +22,9 @@ import org.immutables.gson.stream.JsonParserReader;
 import org.immutables.samples.json.autojackson.AutoDocument;
 import org.immutables.samples.json.immutables.Gocument;
 import org.immutables.samples.json.immutables.GsonAdaptersGocument;
-import org.immutables.samples.json.io.Io;
+import org.immutables.samples.json.immutables.JsonAdaptersGocument;
 import org.immutables.samples.json.pojo.OptionalJsonAdapterFactory;
+import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
 import org.immutables.samples.json.pojo.PojoDocument;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -132,14 +131,7 @@ public class JsonBenchmarks {
   @SuppressWarnings("resource")
   @Benchmark
   public String immutablesGson() throws IOException {
-    JsonReader reader = new JsonReader(Io.readerFor(json));
-
-    Gocument gocument = gocumentAdapter.read(reader);
-
-    SegmentedStringWriter sw = new SegmentedStringWriter(objectMapper.getFactory()._getBufferRecycler());
-    JsonWriter writer = new JsonWriter(sw);
-    gocumentAdapter.write(writer, gocument);
-    writer.close();
-    return sw.toString();
+    Gocument gocument = gocumentAdapter.fromJson(json);
+    return gocumentAdapter.toJson(gocument);
   }
 }
