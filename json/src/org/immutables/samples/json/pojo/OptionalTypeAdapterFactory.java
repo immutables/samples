@@ -10,7 +10,6 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 
 public class OptionalTypeAdapterFactory implements TypeAdapterFactory {
   @Override
@@ -19,22 +18,23 @@ public class OptionalTypeAdapterFactory implements TypeAdapterFactory {
     if (!Optional.class.isAssignableFrom(type.getRawType())) {
       return null;
     }
-    return (TypeAdapter<T>) new OptionalTypeAdapter(gson, type);
+    TypeToken<Object> tt = (TypeToken<Object>) TypeToken.get(
+        ((ParameterizedType) type.getType()).getActualTypeArguments()[0]);
+
+    return (TypeAdapter<T>) new OptionalTypeAdapter(gson.getAdapter(tt));
   }
 
   private static class OptionalTypeAdapter extends TypeAdapter<Optional<?>> {
-    private final Gson currentGson;
-    private final Type valueType;
+    private final TypeAdapter<Object> adapter;
 
-    private OptionalTypeAdapter(Gson currentGson, TypeToken<?> token) {
-      this.currentGson = currentGson;
-      this.valueType = ((ParameterizedType) token.getType()).getActualTypeArguments()[0];
+    private OptionalTypeAdapter(TypeAdapter<Object> adapter) {
+      this.adapter = adapter;
     }
 
     @Override
     public void write(JsonWriter out, Optional<?> value) throws IOException {
       if (value.isPresent()) {
-        currentGson.toJson(value.get(), valueType, out);
+        adapter.write(out, value.get());
       } else {
         out.nullValue();
       }
@@ -45,7 +45,7 @@ public class OptionalTypeAdapterFactory implements TypeAdapterFactory {
       if (JsonToken.NULL == in.peek()) {
         return Optional.absent();
       }
-      return Optional.of(currentGson.fromJson(in, valueType));
+      return Optional.of(adapter.read(in));
     }
   }
 }

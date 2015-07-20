@@ -1,5 +1,6 @@
 package org.immutables.samples.json.immutables;
 
+import org.immutables.moshi.Json;
 import com.google.common.base.Optional;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 @Value.Enclosing
 @Gson.TypeAdapters
+@Json.Adapters
 public interface Gocument {
 
   List<Item> items();
@@ -18,6 +20,7 @@ public interface Gocument {
   public interface Item {
     int id();
 
+    @Json.Named("name")
     String name();
 
     @Nullable

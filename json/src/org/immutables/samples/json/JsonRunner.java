@@ -10,7 +10,7 @@ public class JsonRunner {
     new Runner(new OptionsBuilder()
         .include(".*" + JsonBenchmarks.class.getSimpleName() + ".*")
         .warmupIterations(7)
-        .measurementIterations(5)
+        .measurementIterations(7)
         .forks(1)
         .build()).run();
   }

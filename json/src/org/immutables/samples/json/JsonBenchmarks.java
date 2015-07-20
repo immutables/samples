@@ -1,5 +1,9 @@
 package org.immutables.samples.json;
 
+import com.squareup.moshi.JsonAdapter;
+import org.immutables.samples.json.immutables.JsonAdaptersGocument;
+import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
+import com.squareup.moshi.Moshi;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.io.SegmentedStringWriter;
@@ -21,7 +25,7 @@ import org.immutables.samples.json.autojackson.AutoDocument;
 import org.immutables.samples.json.immutables.Gocument;
 import org.immutables.samples.json.immutables.GsonAdaptersGocument;
 import org.immutables.samples.json.io.Io;
-import org.immutables.samples.json.pojo.OptionalTypeAdapterFactory;
+import org.immutables.samples.json.pojo.OptionalJsonAdapterFactory;
 import org.immutables.samples.json.pojo.PojoDocument;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -40,9 +44,14 @@ public class JsonBenchmarks {
   private String json;
   private Gson gson;
   private TypeAdapter<Gocument> gocumentAdapter;
+  private Moshi moshi;
 
   @Setup
   public void setup() throws IOException {
+    moshi = new Moshi.Builder()
+        .add(new OptionalJsonAdapterFactory())
+        .add(new JsonAdaptersGocument())
+        .build();
     json = Resources.toString(JsonBenchmarks.class.getResource("sample.json"), StandardCharsets.UTF_8);
     objectMapper.registerModule(new GuavaModule());
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -70,6 +79,20 @@ public class JsonBenchmarks {
   public String pojoGson() {
     PojoDocument document = gson.fromJson(json, PojoDocument.class);
     return gson.toJson(document);
+  }
+
+  @Benchmark
+  public String pojoMoshi() throws IOException {
+    JsonAdapter<PojoDocument> adapter = moshi.adapter(PojoDocument.class);
+    PojoDocument document = adapter.fromJson(json);
+    return adapter.toJson(document);
+  }
+
+  @Benchmark
+  public String immutablesMoshi() throws IOException {
+    JsonAdapter<Gocument> adapter = moshi.adapter(Gocument.class);
+    Gocument document = adapter.fromJson(json);
+    return adapter.toJson(document);
   }
 
   @SuppressWarnings("resource")
